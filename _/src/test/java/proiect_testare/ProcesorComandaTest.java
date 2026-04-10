@@ -25,7 +25,7 @@ class ProcesorComandaTest {
     void testSumaInvalida() {
         // Aici folosim assertThrows pentru a verifica dacă sistemul crapă corect când primește date greșite
         assertThrows(IllegalArgumentException.class, () -> {
-            procesor.calculeazaPretFinal(-50.0, 1, false, 2.0);
+            procesor.calculeazaPretFinal(new double[]{100.0, 200.0}, 1, false, 2.0);
         });
     }
 }
