@@ -45,6 +45,13 @@ class ProcesorComandaTest {
     }
 
     @Test
+    public void testConditieCompusa_DateValide() {
+        double[] preturiProduse = {100.0, 50.0};
+        double result = procesor.calculeazaPretFinal(preturiProduse, 2, false, 2.0);
+        assertEquals(159.0, result, 0.001, "Pretul final pentru un cos valid mic nu este calculat corect");
+    }
+
+    @Test
     public void testConditieSimpla_PretProdusNegativ_StructuraRepetitiva() {
         assertThrows(IllegalArgumentException.class, () -> {
             procesor.calculeazaPretFinal(new double[]{50.0, -10.0}, 2, false, 2.0);
@@ -60,6 +67,15 @@ class ProcesorComandaTest {
         double expected = 999.9 * 0.98;
         double result = procesor.calculeazaPretFinal(new double[]{999.9}, 0, false, 2.0);
         assertEquals(expected, result, 0.001);
+    }
+
+    @Test
+    public void testBoundary_PretProdus_LimitaValidaZero() {
+        // limita inferioara absoluta pentru pretul unui produs
+        double[] preturi = {0.0};
+        double result = procesor.calculeazaPretFinal(preturi, 0, false, 2.0);
+
+        assertEquals(15.0, result, 0.001, "Produsul cu pretul 0.0 ar trebui acceptat ca valoare de frontiera.");
     }
 
     @Test
