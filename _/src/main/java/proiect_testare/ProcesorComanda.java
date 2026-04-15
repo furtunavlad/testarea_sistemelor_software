@@ -2,44 +2,50 @@ package proiect_testare;
 
 public class ProcesorComanda {
 
-    public double calculeazaPretFinal(double sumaInitiala, int aniFidelitate, boolean areVoucher, double greutateColet) {
-        // 1. Validarea datelor (Frontiere și Excepții)
-        if (sumaInitiala <= 0 || greutateColet < 0 || aniFidelitate < 0) {
+public double calculeazaPretFinal(double[] preturiProduse, int aniFidelitate, boolean areVoucher, double greutateColet) {
+        
+        // conditie compusa + if fara else
+        if (preturiProduse == null || preturiProduse.length == 0 || greutateColet < 0 || aniFidelitate < 0) {
             throw new IllegalArgumentException("Date de intrare invalide");
+        }
+
+        double sumaInitiala = 0.0;
+
+        // structura repetitiva
+        for (int i = 0; i < preturiProduse.length; i++) {
+            if (preturiProduse[i] < 0) {
+                throw new IllegalArgumentException("Pretul unui produs nu poate fi negativ");
+            }
+            sumaInitiala += preturiProduse[i];
         }
 
         double reducereProcentuala = 0.0;
 
-        // 2. Reducere de volum (Decizii și Condiții)
+        // if else
         if (sumaInitiala >= 1000.0) {
-            reducereProcentuala += 0.10; // 10%
-        } else if (sumaInitiala >= 500.0) {
-            reducereProcentuala += 0.05; // 5%
+            reducereProcentuala += 0.10; // 10% reducere pentru comenzi mari
+        } else {
+            reducereProcentuala += 0.02; // 2% reducere de baza pentru restul comenzilor
         }
 
-        // 3. Reducere de fidelitate (Plafonare logică)
         if (aniFidelitate > 0) {
             reducereProcentuala += Math.min(aniFidelitate * 0.01, 0.05); // Max 5%
         }
 
         double sumaDupaReducere = sumaInitiala * (1 - reducereProcentuala);
 
-        // 4. Aplicare Voucher
         if (areVoucher) {
             sumaDupaReducere -= 50.0;
-            // Ne asigurăm că voucherul nu face suma negativă
             if (sumaDupaReducere < 0) {
                 sumaDupaReducere = 0;
             }
         }
 
-        // 5. Calcul cost livrare
         double costLivrare = 0.0;
         if (sumaDupaReducere < 200.0) {
-            costLivrare = 15.0; // taxa de bază
+            costLivrare = 15.0; // taxa de baza
             if (greutateColet > 5.0) {
-                // suprataxă de 2 RON pe kg suplimentar
-                costLivrare += (greutateColet - 5.0) * 2.0;
+                costLivrare += (greutateColet - 5.0) * 2.0; // 2 RON pe kg suplimentar
             }
         }
 
