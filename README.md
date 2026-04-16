@@ -17,6 +17,8 @@
 
 ### 2.1 Graficul de Flux de Control (Control Flow Graph)
 
+![CFG.svg](_/CFG.svg)
+
 ---
 
 ## 3. Strategii de Testare Aplicate
