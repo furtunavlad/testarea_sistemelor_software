@@ -15,9 +15,11 @@
 
 ## 2. Diagrame
 
-### 2.1 Graficul de Flux de Control (Control Flow Graph)
+### 2.1 Graficul de Flux de Control (Control Flow Graph) 
 
-![CFG.svg](_/CFG.svg)
+<p align="center">
+  <img src="_/CFG.svg" style="background-color: white;" />
+</p>
 
 ---
 
