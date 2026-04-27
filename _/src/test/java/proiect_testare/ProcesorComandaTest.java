@@ -232,7 +232,7 @@ class ProcesorComandaTest {
         assertEquals(294.0, result, 0.001);
     }
 
-    // Branch: "if (greutateColet > 5.0)" - ramura TRUE (in interiorul ramure
+    // Branch: "if (greutateColet > 5.0)" - ramura TRUE
     // sumaDupaReducere < 200)
     @Test
     public void testStructural_GreutateColet_Peste5() {
@@ -242,10 +242,10 @@ class ProcesorComandaTest {
         assertEquals(115.0, result, 0.001);
     }
 
-    // Branch: "if (greutateColet > 5.0)" - ramura FALSE (in interiorul ramure
+    // Branch: "if (greutateColet > 5.0)" - ramura FALSE
     // sumaDupaReducere < 200)
     @Test
-    public void testStructural_GreutateColet_MaxFara5() {
+    public void testStructural_GreutateColet_5() {
         // 100 * 0.98 = 98 < 200 => livrare 15
         // greutate=5.0 => FALSE => fara suprataxa
         double result = procesor.calculeazaPretFinal(new double[] { 100.0 }, 0, false, 5.0);
