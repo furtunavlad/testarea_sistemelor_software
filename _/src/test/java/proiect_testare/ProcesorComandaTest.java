@@ -132,7 +132,7 @@ class ProcesorComandaTest {
     // MARK: Structural Testing
 
     @Test
-    public void testStructural_MultipleConditionCoverage_Exceptii() {
+    public void testStructural_DateInvalide() {
         // Condition Coverage pentru OR
         assertThrows(IllegalArgumentException.class,
                 () -> procesor.calculeazaPretFinal(null, 1, false, 1.0)); // prima
