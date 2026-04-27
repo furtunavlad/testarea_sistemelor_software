@@ -147,26 +147,109 @@ class ProcesorComandaTest {
                 () -> procesor.calculeazaPretFinal(new double[] { 10.0 }, -1, false, 1.0)); // a patra
     }
 
+    // Branch: "if (preturiProduse[i] < 0)"
     @Test
     public void testStructural_LoopPesteValoriNegative() {
-        // Condition Coverage for-loop "if (preturiProduse[i] < 0)"
         assertThrows(IllegalArgumentException.class, () -> {
             procesor.calculeazaPretFinal(new double[] { 49.99, 19.99, 44.99, -10.0, 92.99 }, 2, false, 2.0);
         });
     }
 
+    // Branch: "if (sumaInitiala >= 1000.0)" - ramura TRUE
+    @Test
+    public void testStructural_SumaInitialaGeq1000_AdevArat() {
+        // 1000.0 >= 1000.0 => TRUE => reducere 10%
+        // 1000 * 0.90 = 900 >= 200 => livrare gratuita
+        double result = procesor.calculeazaPretFinal(new double[] { 1000.0 }, 0, false, 2.0);
+        assertEquals(900.0, result, 0.001);
+    }
+
+    // Branch: "if (sumaInitiala >= 1000.0)" - ramura FALSE
+    @Test
+    public void testStructural_SumaInitialaGeq1000_Fals() {
+        // 500.0 < 1000.0 => FALSE => reducere 2%
+        // 500 * 0.98 = 490 >= 200 => livrare gratuita
+        double result = procesor.calculeazaPretFinal(new double[] { 500.0 }, 0, false, 2.0);
+        assertEquals(490.0, result, 0.001);
+    }
+
+    // Branch: "if (aniFidelitate > 0)" - ramura TRUE
+    @Test
+    public void testStructural_AniFidelitate_Pozitiv() {
+        // aniFidelitate=3 > 0 => TRUE => reducere extra min(3*0.01, 0.05) = 0.03
+        // reducere totala: 0.02 + 0.03 = 0.05
+        // 500 * 0.95 = 475 >= 200 => livrare gratuita
+        double result = procesor.calculeazaPretFinal(new double[] { 500.0 }, 3, false, 2.0);
+        assertEquals(475.0, result, 0.001);
+    }
+
+    // Branch: "if (aniFidelitate > 0)" - ramura FALSE
+    @Test
+    public void testStructural_AniFidelitate_Zero() {
+        // aniFidelitate=0 => FALSE => nicio reducere suplimentara
+        // 500 * 0.98 = 490 >= 200 => livrare gratuita
+        double result = procesor.calculeazaPretFinal(new double[] { 500.0 }, 0, false, 2.0);
+        assertEquals(490.0, result, 0.001);
+    }
+
+    // Branch: "if (areVoucher)" - ramura TRUE
+    @Test
+    public void testStructural_VoucherSumaPozitiva() {
+        double result = procesor.calculeazaPretFinal(new double[] { 200.0 }, 0, true, 2.0);
+        assertEquals(161.0, result, 0.001); // 196 - 50 = 146. Taxa = 15 -> 161
+    }
+
+    // Branch: "if (areVoucher)" - ramura FALSE
+    @Test
+    public void testStructural_AreVoucher_Fals() {
+        // areVoucher=false => ramura if sarita, fara reducere de 50
+        // 100 * 0.98 = 98 < 200 => livrare 15
+        double result = procesor.calculeazaPretFinal(new double[] { 100.0 }, 0, false, 2.0);
+        assertEquals(113.0, result, 0.001);
+    }
+
+    // Branch: "if (sumaDupaReducere < 0)"
     @Test
     public void testStructural_VoucherSumaNegativa() {
-        // Branch coverage: ramura "if (sumaDupaReducere < 0)"
         double result = procesor.calculeazaPretFinal(new double[] { 40.0 }, 0, true, 2.0);
         assertEquals(15.0, result, 0.001); // Taxa livrare -> 15
     }
 
+    // Branch: "if (sumaDupaReducere < 200.0)" - ramura TRUE
     @Test
-    public void testStructural_VoucherSumaPozitiva() {
-        // Branch coverage: "if (areVoucher)"
-        double result = procesor.calculeazaPretFinal(new double[] { 200.0 }, 0, true, 2.0);
-        assertEquals(161.0, result, 0.001); // 196 - 50 = 146. Taxa = 15 -> 161
+    public void testStructural_SumaDupaReducere_Sub200() {
+        // 100 * 0.98 = 98 < 200 => TRUE => costLivrare = 15
+        // greutate=2.0 <= 5.0 => fara suprataxa
+        double result = procesor.calculeazaPretFinal(new double[] { 100.0 }, 0, false, 2.0);
+        assertEquals(113.0, result, 0.001);
+    }
+
+    // Branch: "if (sumaDupaReducere < 200.0)" - ramura FALSE
+    @Test
+    public void testStructural_SumaDupaReducere_Peste200() {
+        // 300 * 0.98 = 294 >= 200 => FALSE => costLivrare = 0
+        double result = procesor.calculeazaPretFinal(new double[] { 300.0 }, 0, false, 2.0);
+        assertEquals(294.0, result, 0.001);
+    }
+
+    // Branch: "if (greutateColet > 5.0)" - ramura TRUE (in interiorul ramure
+    // sumaDupaReducere < 200)
+    @Test
+    public void testStructural_GreutateColet_Peste5() {
+        // 100 * 0.98 = 98 < 200 => livrare 15
+        // greutate=6.0 > 5.0 => TRUE => livrare += (6.0 - 5.0) * 2 = 17
+        double result = procesor.calculeazaPretFinal(new double[] { 100.0 }, 0, false, 6.0);
+        assertEquals(115.0, result, 0.001);
+    }
+
+    // Branch: "if (greutateColet > 5.0)" - ramura FALSE (in interiorul ramure
+    // sumaDupaReducere < 200)
+    @Test
+    public void testStructural_GreutateColet_MaxFara5() {
+        // 100 * 0.98 = 98 < 200 => livrare 15
+        // greutate=5.0 => FALSE => fara suprataxa
+        double result = procesor.calculeazaPretFinal(new double[] { 100.0 }, 0, false, 5.0);
+        assertEquals(113.0, result, 0.001);
     }
 
     // MARK: Mutation Testing
