@@ -63,4 +63,28 @@ class ProcesorComandaEPTest {
         double result = procesor.calculeazaPretFinal(new double[] { 600.0, 600.0 }, 3, true, 2.0, false);
         assertEquals(994.0, result, 0.001);
     }
+
+    @Test
+    public void testEP_PretZero() {
+        // Clasa de echivalenta valida: pretul unui produs este exact 0
+        // 0 * 0.98 = 0. Sub 200 -> taxa livrare 15. Total: 15.
+        double result = procesor.calculeazaPretFinal(new double[] { 0.0 }, 0, false, 2.0, false);
+        assertEquals(15.0, result, 0.001);
+    }
+
+    @Test
+    public void testEP_ClientVIP() {
+        // Clasa de echivalenta: client VIP cu comanda mica, fara voucher
+        // Reducere 10% (VIP). 100 * 0.9 = 90. Sub 200 -> taxa 15. Total: 105.
+        double result = procesor.calculeazaPretFinal(new double[] { 100.0 }, 0, false, 2.0, true);
+        assertEquals(105.0, result, 0.001);
+    }
+
+    @Test
+    public void testEP_PretNegativ() {
+        // Clasa de echivalenta invalida: un singur produs cu pret negativ (verificat in bucla)
+        assertThrows(IllegalArgumentException.class, () -> {
+            procesor.calculeazaPretFinal(new double[] { -10.0 }, 0, false, 2.0, false);
+        });
+    }
 }

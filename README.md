@@ -41,7 +41,7 @@ open target/site/jacoco/index.html
 
 1. Rularea analizei de mutații:
 ```bash
-mvn org.pitest:pitest-maven:mutationCoverage -DtargetClasses='proiect_testare.*' -DtargetTests='proiect_testare.*' -Dmutators=ALL
+mvn org.pitest:pitest-maven:mutationCoverage -DtargetClasses='proiect_testare.*' -DtargetTests='proiect_testare.*'
 
 ```
 

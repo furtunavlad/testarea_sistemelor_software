@@ -31,7 +31,7 @@ class ProcesorComandaBVATest {
         // La 1000.0 aplicam reducerea majorata de 10%
         // 1000 * 0.9 = 900
         double result = procesor.calculeazaPretFinal(new double[] { 1000.0 }, 0, false, 2.0, false);
-        assertEquals(900.0, result, 0.001); 
+        assertEquals(900.0, result, 0.001);
     }
 
     @Test
@@ -73,18 +73,27 @@ class ProcesorComandaBVATest {
     @Test
     public void testBVA_AniFidelitateLaLimitaDe5Procente() {
         // Verificam plafonarea math.min la fidelitate
-        // 4 ani = 4%, 5 ani = 5%, 6 ani = max 5% (Total 6%, 7%, 7% din cauza reducerii standard de 2%)
-        
+        // 4 ani = 4%, 5 ani = 5%, 6 ani = max 5% (Total 6%, 7%, 7% din cauza reducerii
+        // standard de 2%)
+
         // 100 * 0.94 = 94 + 15 = 109
         double result4Ani = procesor.calculeazaPretFinal(new double[] { 100.0 }, 4, false, 2.0, false);
-        assertEquals(109.0, result4Ani, 0.001); 
+        assertEquals(109.0, result4Ani, 0.001);
 
         // 100 * 0.93 = 93 + 15 = 108
         double result5Ani = procesor.calculeazaPretFinal(new double[] { 100.0 }, 5, false, 2.0, false);
-        assertEquals(108.0, result5Ani, 0.001); 
+        assertEquals(108.0, result5Ani, 0.001);
 
         // 100 * 0.93 = 93 + 15 = 108 (Plafonat)
         double result6Ani = procesor.calculeazaPretFinal(new double[] { 100.0 }, 6, false, 2.0, false);
-        assertEquals(108.0, result6Ani, 0.001); 
+        assertEquals(108.0, result6Ani, 0.001);
+    }
+
+    @Test
+    public void testBVA_AniFidelitate1() {
+        // Pragul minim care activeaza bonusul de fidelitate (1 an = 1% extra)
+        // Reducere 2% + 1% = 3%. 100 * 0.97 = 97. Sub 200 -> taxa 15. Total: 112.
+        double result = procesor.calculeazaPretFinal(new double[] { 100.0 }, 1, false, 2.0, false);
+        assertEquals(112.0, result, 0.001);
     }
 }
