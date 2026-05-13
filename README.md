@@ -78,8 +78,8 @@ Taxa de transport se calculează în funcție de suma finală a produselor (dup�
 ### 2.1 Configurația Hardware
 Compatibil cu majoritatea configuratiilor hardware. A fost rulat pe:
 * **Sistem de operare:** macOS Tahoe
-* **Procesor (CPU):** Apple M1
-* **Memorie RAM:** 16 GB
+* **Procesor (CPU):** Apple M1 / M1 PRO
+* **Memorie RAM:** 16 GB / 32 GB 
 
 ### 2.2 Configurația Software și Versiuni Tool-uri
 Proiectul folosește **Maven** ca utilitar de build și management al dependențelor.
@@ -126,7 +126,7 @@ open target/pit-reports/index.html
 
 ### 3.1 Graficul de Flux de Control (Control Flow Graph)
 
-Mai jos este reprezentat graficul fluxului de control pentru metoda principală `calculeazaPretFinal`, ilustrând deciziile logice (evaluare coș, praguri de reducere VIP/Fidelitate, aplicare voucher și calcul costuri de livrare):
+Mai jos este reprezentat Graful Fluxului de Control (CFG) pentru metoda `calculeazaPretFinal`, extras pe baza implementării Java conform metodologiei de testare structurală. Graful utilizează blocuri de bază pentru a grupa secvențele liniare de instrucțiuni , evidențiind clar punctele de decizie: validarea parametrilor, procesarea repetitivă a produselor în buclă, logica de reducere (praguri de sumă, statut VIP și fidelitate), precum și ramificațiile pentru aplicarea voucherelor și calculul costurilor de livrare:
 
 ```mermaid
 graph TD
