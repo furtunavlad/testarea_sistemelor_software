@@ -5,22 +5,90 @@
 
 ---
 
-## 1. Configurația Mediului de Testare
+## 1. Descriere Generală
 
-### 1.1 Configurația Hardware
+Modulul `ProcesorComanda` are rolul de a calcula prețul final de plată pentru un coș de cumpărături, aplicând dinamic o serie de reduceri procentuale, vouchere valorice și taxe de livrare (inclusiv penalizări de greutate), în funcție de profilul clientului și detaliile comenzii.
+
+### 1.1. Date de Intrare (Parametri)
+
+Sistemul primește următoarele informații pentru fiecare comandă:
+
+* **`preturiProduse`**: O listă (array) de numere reale reprezentând prețurile individuale ale produselor din coș.
+* **`aniFidelitate`**: Un număr întreg reprezentând vechimea clientului (în ani).
+* **`areVoucher`**: O valoare booleană (Adevărat/Fals) care indică dacă clientul a aplicat un cod de reducere fix.
+* **`greutateColet`**: Un număr real reprezentând greutatea totală a pachetului (în kilograme).
+* **`isVIP`**: O valoare booleană (Adevărat/Fals) care indică dacă clientul face parte din programul Premium/VIP.
+
+### 1.2. Pre-condiții (Reguli de Validare)
+
+Sistemul trebuie să respingă automat procesarea și să ridice o excepție (`IllegalArgumentException`) dacă oricare dintre următoarele condiții nu este respectată:
+
+1. Lista de prețuri este nulă (inexistentă) sau goală (nu conține niciun produs).
+2. Greutatea coletului este un număr strict negativ (`< 0`).
+3. Anii de fidelitate reprezintă un număr strict negativ (`< 0`).
+4. Oricare dintre prețurile din lista de produse este un număr strict negativ (`< 0`).
+
+### 1.3. Reguli de Business (Procesare)
+
+**1.3.1. Calculul Sumei Inițiale**
+
+* Sistemul va calcula suma inițială prin adunarea tuturor prețurilor valide din lista de produse.
+
+**1.3.2. Acordarea Reducerilor Procentuale**
+Se aplică o singură reducere globală, calculată după cum urmează:
+
+* **Reducerea de bază:** 
+  * Clienții VIP **sau** clienții a căror sumă inițială atinge sau depășește pragul de `1000.0` lei vor primi o reducere de **10%**.
+  * Toți ceilalți clienți vor primi o reducere standard de **2%**.
+
+
+* **Bonusul de fidelitate:** 
+  * Se aplică **doar clienților non-VIP** care au o vechime mai mare de 0 ani.
+  * Se adaugă **1% extra-reducere pentru fiecare an** de fidelitate.
+  * Acest bonus extra este plafonat la maximum **5%** (chiar dacă clientul are mai mult de 5 ani vechime).
+
+
+**Suma totala** se actualizează scăzând procentul total de reducere calculat din suma inițială.
+
+**1.3.3. Aplicarea Voucherului Fix**
+
+* Dacă clientul deține un voucher (`areVoucher == true`), se va scădea o valoare fixă de **50.0 lei** din suma obținută după aplicarea reducerilor procentuale.
+* Dacă în urma aplicării voucherului suma totală devine negativă, aceasta **va fi plafonată la 0.0 lei** (clientul nu poate primi bani înapoi).
+
+**1.3.4. Calculul Costurilor de Livrare**
+Taxa de transport se calculează în funcție de suma finală a produselor (după toate reducerile și voucherele) și de greutatea coletului:
+
+* **Livrare gratuită:** 
+  * Dacă suma produselor este mai mare sau egală cu `200.0` lei, costul de livrare este **0 lei**.
+* **Livrare cu taxă:** 
+  * Dacă suma produselor scade sub pragul de `200.0` lei, se aplică o taxă de bază de **15.0 lei**.
+* **Suprataxă de greutate:** 
+  * Se aplică *doar dacă comanda nu beneficiază de livrare gratuită* și dacă greutatea coletului depășește pragul de **5.0 kg**. 
+  * Pentru fiecare kilogram suplimentar peste pragul de 5.0 kg, se va adăuga o penalizare de **2.0 lei**.
+
+### 1.4. Post-condiții (Ieșiri)
+
+* Sistemul trebuie să returneze un număr real pozitiv, reprezentând costul final pe care clientul trebuie să-l achite.
+* Această valoare finală (Suma produselor + Cost livrare) trebuie rotunjită matematic la **exact 2 zecimale** înainte de a fi returnată.
+
+---
+
+## 2. Configurația Mediului de Testare
+
+### 2.1 Configurația Hardware
 Compatibil cu majoritatea configuratiilor hardware. A fost rulat pe:
 * **Sistem de operare:** macOS Tahoe
 * **Procesor (CPU):** Apple M1
 * **Memorie RAM:** 16 GB
 
-### 1.2 Configurația Software și Versiuni Tool-uri
+### 2.2 Configurația Software și Versiuni Tool-uri
 Proiectul folosește **Maven** ca utilitar de build și management al dependențelor.
 * **Java (JDK):** Versiunea 24
 * **Framework de testare:** JUnit Jupiter (JUnit 5) - Versiunea `5.13.4`
 * **Acoperire de cod (Code Coverage):** JaCoCo Maven Plugin - Versiunea `0.8.14`
 * **Testare pe bază de mutanți (Mutation Testing):** PITest Maven Plugin - Versiunea `1.19.4` (cu extensia `pitest-junit5-plugin` versiunea `1.2.3`)
 
-### 1.3 Comenzi de Rulare a Testelor și Generare Rapoarte
+### 2.3 Comenzi de Rulare a Testelor și Generare Rapoarte
 Pentru a reproduce mediul și a vizualiza rapoartele din consolă, se vor folosi următoarele comenzi în directorul rădăcină al proiectului:
 
 **A. Rulare teste și generare raport de acoperire (JaCoCo):**
@@ -54,9 +122,9 @@ open target/pit-reports/index.html
 
 ---
 
-## 2. Diagrame
+## 3. Diagrame
 
-### 2.1 Graficul de Flux de Control (Control Flow Graph)
+### 3.1 Graficul de Flux de Control (Control Flow Graph)
 
 Mai jos este reprezentat graficul fluxului de control pentru metoda principală `calculeazaPretFinal`, ilustrând deciziile logice (evaluare coș, praguri de reducere VIP/Fidelitate, aplicare voucher și calcul costuri de livrare).
 <p align="center">
@@ -65,9 +133,9 @@ Mai jos este reprezentat graficul fluxului de control pentru metoda principală 
 
 ---
 
-## 3. Strategii de Testare Aplicate
+## 4. Strategii de Testare Aplicate
 
-### 3.1 Partiționare în clase de echivalență
+### 4.1 Partiționare în clase de echivalență
 
 Am împărțit domeniul datelor de intrare în clase valide și invalide, asumând că datele din aceeași clasă sunt procesate identic de `ProcesorComanda`.
 
@@ -75,7 +143,7 @@ Am împărțit domeniul datelor de intrare în clase valide și invalide, asumâ
 * **Clase Valide:** Comenzi de valoare mică/mare, clienți VIP vs. standard, utilizarea voucherului vs. neutilizare.
 * *Implementare:* Clasa `ProcesorComandaEPTest`.
 
-### 3.2 Analiza valorilor de frontieră (BVA)
+### 4.2 Analiza valorilor de frontieră (BVA)
 
 Ne-am concentrat pe limitele claselor de echivalență (unde apar de obicei erori de tipul `<` în loc de `<=`).
 
@@ -85,27 +153,27 @@ Ne-am concentrat pe limitele claselor de echivalență (unde apar de obicei eror
 * **Plafonare Fidelitate:** Verificarea reducerii de fidelitate maximă la anii 4, 5 (limită) și 6 (peste limită, plafonat la 5%).
 * *Implementare:* Clasa `ProcesorComandaBVATest`.
 
-### 3.3 Acoperire la nivel de instrucțiune, decizie și condiție
+### 4.3 Acoperire la nivel de instrucțiune, decizie și condiție
 
 * **Instrucțiune & Decizie:** Toate ramurile (`if`/`else`) au fost vizitate măcar o dată (ex. intrare pe ramura de voucher valabil, clamparea valorii negative la 0.0 etc.).
 * **Condiție (Condition Coverage):** Am analizat deciziile compuse (ex: `if (sumaInitiala >= 1000.0 || isVIP)` și `if (aniFidelitate > 0 && !isVIP)`). Am creat teste specifice pentru a evalua independența clauzelor (ex: C1 True și C2 False, urmat de C1 False și C2 True), demonstrând că fiecare condiție individuală dictează rezultatul expresiei logice.
 * *Implementare:* Clasa `ProcesorComandaWhiteBoxTest`.
 
-### 3.4 Circuite independente
+### 4.4 Circuite independente
 
 Pe baza complexității ciclomatice a funcției (calculată prin formula lui McCabe, $V(G) = E - N + 2P$), am conceput teste care să urmeze trasee (path-uri) independente. De exemplu, un circuit testează scenariul critic care ocolește reducerea mare, nu aplică voucher, dar aplică dublă penalizare (taxă de livrare standard + suprataxă de greutate extremă).
 
 ---
 
-## 4. Analiza Mutanților (Mutation Testing)
+## 5. Analiza Mutanților (Mutation Testing)
 
 Am utilizat PITest pentru a injecta mutanți artificiali (defecte) în codul sursă. Scopul a fost ca testele noastre să pice (să "ucidă" mutantul) la întâlnirea acestor modificări.
 
-### 4.1 Captură de ecran cu rezultatul inițial
+### 5.1 Captură de ecran cu rezultatul inițial
 
 *[ todo - imagine cu raportul PITest fara teste de mutanti ]*
 
-### 4.2 Comparație Mutanți
+### 5.2 Comparație Mutanți
 
 Mai jos sunt prezentați doi mutanți neechivalenți care au supraviețuit inițial și pe care i-am eliminat adăugând teste stricte de white-box.
 
@@ -115,13 +183,13 @@ Mai jos sunt prezentați doi mutanți neechivalenți care au supraviețuit iniț
 | `Math.min(aniFidelitate * 0.01, 0.05)` | A schimbat apelul `Math.min` cu `Math.max` | Testul `testMutation_UcideMutantMathMinMax` folosește 1 an de fidelitate. Mutantul aplica direct 5% (max), în loc de 1% (min), forțând testul să pice pe calculul final. | **KILLED** |
 | `sumaDupaReducere -= 50.0;` | A schimbat scăderea `-=` cu adunare `+=` | Testul `testMutation_UcideMutantPlusMinusVoucher` folosește un voucher pe un coș valid. Mutantul crește prețul în loc să-l scadă, picând aserția sumei finale. | **KILLED** |
 
-### 4.3 Captură de ecran cu rezultatul final
+### 5.3 Captură de ecran cu rezultatul final
 
 *[ todo - imagine cu raportul PITest cu mutation coverage ridicat ]*
 
 ---
 
-## 5. Raport privind Utilizarea Inteligenței Artificiale
+## 6. Raport privind Utilizarea Inteligenței Artificiale
 
 Pentru realizarea acestui proiect, am utilizat asistență AI (Gemini) având următoarele roluri:
 
@@ -130,7 +198,7 @@ Pentru realizarea acestui proiect, am utilizat asistență AI (Gemini) având ur
 
 ---
 
-## 6. Prezentare și Demo
+## 7. Prezentare și Demo
 
 *[ powerpoint ]*
 
