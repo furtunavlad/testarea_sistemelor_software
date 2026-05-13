@@ -126,10 +126,105 @@ open target/pit-reports/index.html
 
 ### 3.1 Graficul de Flux de Control (Control Flow Graph)
 
-Mai jos este reprezentat graficul fluxului de control pentru metoda principală `calculeazaPretFinal`, ilustrând deciziile logice (evaluare coș, praguri de reducere VIP/Fidelitate, aplicare voucher și calcul costuri de livrare).
-<p align="center">
-  <img src="_/CFG.svg" style="background-color: white;" />
-</p>
+Mai jos este reprezentat graficul fluxului de control pentru metoda principală `calculeazaPretFinal`, ilustrând deciziile logice (evaluare coș, praguri de reducere VIP/Fidelitate, aplicare voucher și calcul costuri de livrare):
+
+```mermaid
+graph TD
+    classDef default fill:#fff,stroke:#333,stroke-width:2px,color:#000;
+    
+    1(("1"))
+    2(("2"))
+    3(("3"))
+    4(("4"))
+    5(("5"))
+    6(("6"))
+    7(("7"))
+    8(("8"))
+    9(("9"))
+    10(("10"))
+    11(("11"))
+    12(("12"))
+    13_14(("13, 14"))
+    15_16(("15, 16"))
+    17_18(("17, 18"))
+    19(("19"))
+    20_21(("20,21"))
+    22_23(("22, 23"))
+    24(("24"))
+    25(("25"))
+
+    %% 1. Validare initiala
+    1 --> 2
+    1 --> 3
+    
+    %% Inainte de bucla
+    3 --> 4
+    
+    %% Bucla for
+    4 --> 5
+    4 --> 8
+    
+    5 --> 6
+    5 --> 7
+    7 --> 4
+    
+    %% Reducere de baza
+    8 --> 9
+    9 --> 10
+    9 --> 11
+    10 --> 12
+    11 --> 12
+    
+    %% Fidelitate
+    12 --> 13_14
+    12 --> 15_16
+    13_14 --> 15_16
+    
+    %% Voucher (cu IF imbricat)
+    
+    15_16 --> 17_18
+    15_16 --> 20_21
+    17_18 --> 19
+    17_18 --> 20_21
+    19 --> 20_21
+    
+    %% Costuri Livrare (cu IF imbricat)
+    20_21 --> 22_23
+    20_21 --> 25
+    22_23 --> 24
+    22_23 --> 25
+    24 --> 25
+```
+
+
+### Maparea Nodurilor
+
+1. `if (preturiProduse == null || preturiProduse.length == 0 || greutateColet < 0 || aniFidelitate < 0)`
+2. `throw new IllegalArgumentException("Date de intrare invalide");`
+3. `double sumaInitiala = 0.0;`
+4. `for (int i = 0; i < preturiProduse.length; i++)`
+5. `if (preturiProduse[i] < 0)`
+6. `throw new IllegalArgumentException("Pretul unui produs nu poate fi negativ");`
+7. `sumaInitiala += preturiProduse[i];`
+8. `double reducere = 0.0;`
+9. `if (sumaInitiala >= 1000.0 || isVIP)`
+10. `reducere = 0.10;`
+11. `reducere = 0.02;`
+12. `if (aniFidelitate > 0 && !isVIP)`
+13. `double extraReducere = Math.min(aniFidelitate * 0.01, 0.05);`
+14. `reducere += extraReducere;`
+15. `double sumaDupaReducere = sumaInitiala * (1.0 - reducere);`
+16. `if (areVoucher)`
+17. `sumaDupaReducere -= 50.0;`
+18. `if (sumaDupaReducere < 0)`
+19. `sumaDupaReducere = 0.0;`
+20. `double costLivrare = 0.0;`
+21. `if (sumaDupaReducere < 200.0)`
+22. `costLivrare = 15.0;`
+23. `if (greutateColet > 5.0)`
+24. `costLivrare += (greutateColet - 5.0) * 2.0;`
+25. `return Math.round((sumaDupaReducere + costLivrare) * 100.0) / 100.0;`
+
 
 ---
 
