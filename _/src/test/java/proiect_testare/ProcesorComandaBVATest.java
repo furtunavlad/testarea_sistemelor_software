@@ -96,4 +96,12 @@ class ProcesorComandaBVATest {
         double result = procesor.calculeazaPretFinal(new double[] { 100.0 }, 1, false, 2.0, false);
         assertEquals(112.0, result, 0.001);
     }
+
+    @Test
+    public void testBVA_SumaExactPe200_FrontieraLivrareGratuita() {
+        // In aritmetica IEEE 754 double: 204.08163265306123 * (1.0 - 0.02) == 200.0
+        // omoara si mutantul "sumaDupaReducere <= 200.0"
+        double result = procesor.calculeazaPretFinal(new double[] { 204.08163265306123 }, 0, false, 2.0, false);
+        assertEquals(200.0, result, 0.0);
+    }
 }
