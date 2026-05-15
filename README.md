@@ -360,11 +360,8 @@ Toate deciziile de design al testelor (clase de echivalență, valori de frontie
 
 ## 8. Prezentare și Demo
 
-Prezentarea proiectului este disponibilă în fișierul `Testarea Sistemelor Software.pptx` și acoperă:
-* Descrierea modulului `ProcesorComanda` și regulile de business
-* Strategiile de testare aplicate (EP, BVA, White-Box, Mutation Testing)
-* Rezultatele obținute: 100% line/branch coverage (JaCoCo) și 95% mutation score (PITest)
-* Analiza mutanților echivalenți supraviețuitori
+* Prezentarea proiectului este disponibilă în fișierul `Testarea Sistemelor Software.pptx` si sumarizeaza acest readme. 
+* DEMO: https://youtu.be/zdoa835_XUk
 
 ---
 
