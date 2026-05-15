@@ -1,1 +1,18 @@
-_/target/_/target/
+### Maven ###
+**/target/
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+*.ipr
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+### Logs ###
+*.log
+pitest_detailed.log

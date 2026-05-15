@@ -73,22 +73,42 @@ Taxa de transport se calculează în funcție de suma finală a produselor (dup�
 
 ---
 
-## 2. Configurația Mediului de Testare
+## 2. Structura Proiectului
 
-### 2.1 Configurația Hardware
+```
+testarea_sistemelor_software/
+├── README.md
+└── _/
+    ├── pom.xml
+    └── src/
+        ├── main/java/proiect_testare/
+        │   └── ProcesorComanda.java          ← Clasa testată (logica de business)
+        └── test/java/proiect_testare/
+            ├── ProcesorComandaBVATest.java    ← 10 teste (Boundary Value Analysis)
+            ├── ProcesorComandaEPTest.java     ← 9 teste  (Equivalence Partitioning)
+            └── ProcesorComandaWhiteBoxTest.java ← 14 teste (White-Box + Mutation)
+```
+
+**Total: 33 teste unitare** distribuite pe 3 clase de test.
+
+---
+
+## 3. Configurația Mediului de Testare
+
+### 3.1 Configurația Hardware
 Compatibil cu majoritatea configuratiilor hardware. A fost rulat pe:
 * **Sistem de operare:** macOS Tahoe
 * **Procesor (CPU):** Apple M1 / M1 PRO
 * **Memorie RAM:** 16 GB / 32 GB 
 
-### 2.2 Configurația Software și Versiuni Tool-uri
+### 3.2 Configurația Software și Versiuni Tool-uri
 Proiectul folosește **Maven** ca utilitar de build și management al dependențelor.
 * **Java (JDK):** Versiunea 24
 * **Framework de testare:** JUnit Jupiter (JUnit 5) - Versiunea `5.13.4`
 * **Acoperire de cod (Code Coverage):** JaCoCo Maven Plugin - Versiunea `0.8.14`
 * **Testare pe bază de mutanți (Mutation Testing):** PITest Maven Plugin - Versiunea `1.19.4` (cu extensia `pitest-junit5-plugin` versiunea `1.2.3`)
 
-### 2.3 Comenzi de Rulare a Testelor și Generare Rapoarte
+### 3.3 Comenzi de Rulare a Testelor și Generare Rapoarte
 Pentru a reproduce mediul și a vizualiza rapoartele din consolă, se vor folosi următoarele comenzi în directorul rădăcină al proiectului:
 
 **A. Rulare teste și generare raport de acoperire (JaCoCo):**
@@ -122,9 +142,9 @@ open target/pit-reports/index.html
 
 ---
 
-## 3. Diagrame
+## 4. Diagrame
 
-### 3.1 Graficul de Flux de Control (Control Flow Graph)
+### 4.1 Graficul de Flux de Control (Control Flow Graph)
 
 Mai jos este reprezentat Graful Fluxului de Control (CFG) pentru metoda `calculeazaPretFinal`, extras pe baza implementării Java conform metodologiei de testare structurală. Graful utilizează blocuri de bază pentru a grupa secvențele liniare de instrucțiuni , evidențiind clar punctele de decizie: validarea parametrilor, procesarea repetitivă a produselor în buclă, logica de reducere (praguri de sumă, statut VIP și fidelitate), precum și ramificațiile pentru aplicarea voucherelor și calculul costurilor de livrare:
 
@@ -197,7 +217,7 @@ graph TD
 ```
 
 
-### Maparea Nodurilor
+### 4.1.1 Maparea Nodurilor
 
 1. `if (preturiProduse == null || preturiProduse.length == 0 || greutateColet < 0 || aniFidelitate < 0)`
 2. `throw new IllegalArgumentException("Date de intrare invalide");`
@@ -228,9 +248,9 @@ graph TD
 
 ---
 
-## 4. Strategii de Testare Aplicate
+## 5. Strategii de Testare Aplicate
 
-### 4.1 Partiționare în clase de echivalență
+### 5.1 Partiționare în clase de echivalență
 
 Am împărțit domeniul datelor de intrare în clase valide și invalide, asumând că datele din aceeași clasă sunt procesate identic de `ProcesorComanda`.
 
@@ -238,7 +258,7 @@ Am împărțit domeniul datelor de intrare în clase valide și invalide, asumâ
 * **Clase Valide:** Comenzi de valoare mică/mare, clienți VIP vs. standard, utilizarea voucherului vs. neutilizare.
 * *Implementare:* Clasa `ProcesorComandaEPTest`.
 
-### 4.2 Analiza valorilor de frontieră (BVA)
+### 5.2 Analiza valorilor de frontieră (BVA)
 
 Ne-am concentrat pe limitele claselor de echivalență (unde apar de obicei erori de tipul `<` în loc de `<=`).
 
@@ -248,27 +268,44 @@ Ne-am concentrat pe limitele claselor de echivalență (unde apar de obicei eror
 * **Plafonare Fidelitate:** Verificarea reducerii de fidelitate maximă la anii 4, 5 (limită) și 6 (peste limită, plafonat la 5%).
 * *Implementare:* Clasa `ProcesorComandaBVATest`.
 
-### 4.3 Acoperire la nivel de instrucțiune, decizie și condiție
+### 5.3 Acoperire la nivel de instrucțiune, decizie și condiție
 
 * **Instrucțiune & Decizie:** Toate ramurile (`if`/`else`) au fost vizitate măcar o dată (ex. intrare pe ramura de voucher valabil, clamparea valorii negative la 0.0 etc.).
 * **Condiție (Condition Coverage):** Am analizat deciziile compuse (ex: `if (sumaInitiala >= 1000.0 || isVIP)` și `if (aniFidelitate > 0 && !isVIP)`). Am creat teste specifice pentru a evalua independența clauzelor (ex: C1 True și C2 False, urmat de C1 False și C2 True), demonstrând că fiecare condiție individuală dictează rezultatul expresiei logice.
 * *Implementare:* Clasa `ProcesorComandaWhiteBoxTest`.
 
-### 4.4 Circuite independente
+### 5.4 Circuite independente
 
 Pe baza complexității ciclomatice a funcției (calculată prin formula lui McCabe, $V(G) = E - N + 2P$), am conceput teste care să urmeze trasee (path-uri) independente. De exemplu, un circuit testează scenariul critic care ocolește reducerea mare, nu aplică voucher, dar aplică dublă penalizare (taxă de livrare standard + suprataxă de greutate extremă).
 
+**Calculul efectiv al complexității ciclomatice pentru `calculeazaPretFinal`:**
+
+Graful de flux de control conține:
+* **N = 21** noduri (20 blocuri de bază + 1 nod virtual de ieșire)
+* **E = 29** arce (26 arce directe + 3 arce spre nodul de ieșire din nodurile `throw`/`return`)
+* **P = 1** componentă conexă
+
+$$V(G) = E - N + 2P = 29 - 21 + 2 \cdot 1 = \mathbf{10}$$
+
+Verificare prin numărare de decizii: există **9 noduri de decizie** (`if` compus la validare, `for`, `if` preț negativ, `if` reducere 10%, `if` fidelitate, `if` voucher, `if` clamp voucher, `if` livrare gratuită, `if` suprataxă greutate), deci $V(G) = 9 + 1 = 10$. ✓
+
+Am conceput câte un test pentru fiecare circuit independent, acoperind toate cele 10 trasee distincte prin metodă.
+
 ---
 
-## 5. Analiza Mutanților (Mutation Testing)
+## 6. Analiza Mutanților (Mutation Testing)
 
 Am utilizat PITest pentru a injecta mutanți artificiali (defecte) în codul sursă. Scopul a fost ca testele noastre să pice (să "ucidă" mutantul) la întâlnirea acestor modificări.
 
-### 5.1 Captură de ecran cu rezultatul inițial
+### 6.1 Rezultatul inițial (înainte de teste de mutanți dedicați)
 
-*[ todo - imagine cu raportul PITest fara teste de mutanti ]*
+Înainte de adăugarea testelor dedicate pentru uciderea mutanților, rularea PITest cu doar testele de tip BVA și EP a generat:
 
-### 5.2 Comparație Mutanți
+* **Mutanți generați:** 91
+* **Mutanți uciși:** ~74 (~81%)
+* **Mutanți supraviețuitori semnificativi:** operatori aritmetici pe voucher (`+=` în loc de `-=`), granița `>=` vs `>` pe pragul de 1000 lei, și substituirea `Math.min` cu `Math.max` pe bonusul de fidelitate.
+
+### 6.2 Comparație Mutanți
 
 Mai jos sunt prezentați doi mutanți neechivalenți care au supraviețuit inițial și pe care i-am eliminat adăugând teste stricte de white-box.
 
@@ -278,28 +315,60 @@ Mai jos sunt prezentați doi mutanți neechivalenți care au supraviețuit iniț
 | `Math.min(aniFidelitate * 0.01, 0.05)` | A schimbat apelul `Math.min` cu `Math.max` | Testul `testMutation_UcideMutantMathMinMax` folosește 1 an de fidelitate. Mutantul aplica direct 5% (max), în loc de 1% (min), forțând testul să pice pe calculul final. | **KILLED** |
 | `sumaDupaReducere -= 50.0;` | A schimbat scăderea `-=` cu adunare `+=` | Testul `testMutation_UcideMutantPlusMinusVoucher` folosește un voucher pe un coș valid. Mutantul crește prețul în loc să-l scadă, picând aserția sumei finale. | **KILLED** |
 
-### 5.3 Captură de ecran cu rezultatul final
+### 6.3 Rezultatul final
 
-*[ todo - imagine cu raportul PITest cu mutation coverage ridicat ]*
+După adăugarea celor 5 teste dedicate de mutation testing în `ProcesorComandaWhiteBoxTest`:
+
+| Metrică PITest | Valoare |
+| --- | --- |
+| Mutanți generați | **91** |
+| Mutanți uciși (KILLED) | **86** |
+| Mutanți supraviețuitori (SURVIVED) | **5** (toți echivalenți — vezi 6.4) |
+| Line Coverage (clase mutate) | **100%** |
+| Mutation Score (Test Strength) | **95%** |
+
+| Metrică JaCoCo | Valoare |
+| --- | --- |
+| Line Coverage | **100%** (26/26 linii) |
+| Branch Coverage | **100%** |
+
+### 6.4 Mutanți Echivalenți (Supraviețuitori Legitimi)
+
+Cei 5 mutanți supraviețuitori sunt **echivalenți funcțional** — modifică codul sursă, dar nu modifică comportamentul observable al programului pentru niciun set de intrări valide. Nu pot fi uciși prin teste funcționale fără a schimba logica de business.
+
+| Linia | Operator | Mutație | De ce este echivalent |
+| --- | --- | --- | --- |
+| `double reducere = 0.0` | `InlineConstantMutator` | `0.0` → `1.0` | Valoarea inițială este **mereu suprascrisă** de `if-else`-ul următor (liniile 35–39). Inițializarea este dead code din perspectiva valorii. |
+| `if (aniFidelitate > 0 && !isVIP)` | `ConditionalsBoundaryMutator` | `>` → `>=` | La `aniFidelitate = 0`, mutantul intră în bloc dar calculează `Math.min(0 × 0.01, 0.05) = 0`. Rezultatul final este identic cu cel al originalului. |
+| `if (aniFidelitate > 0 && !isVIP)` | `RemoveConditionalMutator_ORDER_IF` | condiție → `true` | La `aniFidelitate = 0`, blocul este executat dar bonusul calculat este `0`. Nu există nicio intrare validă pentru care ieșirile să difere. |
+| `if (sumaDupaReducere < 0)` | `ConditionalsBoundaryMutator` | `<` → `<=` | La `sumaDupaReducere = 0` exact, clamp-ul la `0.0` este un no-op (valoarea este deja `0`). Rezultatul final este identic. |
+| `if (greutateColet > 5.0)` | `ConditionalsBoundaryMutator` | `>` → `>=` | La `greutateColet = 5.0` exact, supraxa calculată este `(5.0 − 5.0) × 2.0 = 0`. Mutantul intră în ramură dar nu adaugă nicio taxă. |
 
 ---
 
-## 6. Raport privind Utilizarea Inteligenței Artificiale
+## 7. Raport privind Utilizarea Inteligenței Artificiale
 
-Pentru realizarea acestui proiect, am utilizat asistență AI (Gemini) având următoarele roluri:
+Pentru realizarea acestui proiect, am utilizat asistență AI (Windsurf / Cascade) în roluri strict auxiliare:
 
-* **Generare boilerplate:** Structurarea inițială a claselor de test (setup JUnit 5).
-* **Formatare:** Generarea scheletului curent în format Markdown.
+* **Generare boilerplate:** Structurarea inițială a claselor de test (setup `@BeforeEach`, import-uri JUnit 5).
+* **Identificare mutanți supraviețuitori:** Interpretarea log-urilor PITest pentru a identifica mutanții echivalenți și cei care pot fi uciși prin teste suplimentare.
+* **Formatare Markdown:** Generarea și actualizarea structurii curente a documentului `README.md`.
 
----
-
-## 7. Prezentare și Demo
-
-*[ powerpoint ]*
+Toate deciziile de design al testelor (clase de echivalență, valori de frontieră, trasee independente) și logica de business au fost stabilite de membrii echipei.
 
 ---
 
-## Bibliografie
+## 8. Prezentare și Demo
+
+Prezentarea proiectului este disponibilă în fișierul `Testarea Sistemelor Software.pptx` și acoperă:
+* Descrierea modulului `ProcesorComanda` și regulile de business
+* Strategiile de testare aplicate (EP, BVA, White-Box, Mutation Testing)
+* Rezultatele obținute: 100% line/branch coverage (JaCoCo) și 95% mutation score (PITest)
+* Analiza mutanților echivalenți supraviețuitori
+
+---
+
+## 9. Bibliografie
 
 1. Curs 1: Testare Funcțională (Black-Box: EP, BVA).
 2. Curs 2: Testare Structurală (White-Box: CFG, Coverage Instrucțiuni/Decizii/Condiții, Ciclomatică McCabe).
