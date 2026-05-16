@@ -358,7 +358,7 @@ Toate deciziile de design al testelor (clase de echivalență, valori de frontie
 
 ---
 
-### 7.1 Comparație: Suita Proprie vs. Teste Autogenerate
+### 7.1 Comparație[7]: Suita Proprie vs. Teste Autogenerate
 
 Am experimentat generarea automată de teste folosind **Gemini 2.5 Pro** (denumit de echipă „Gemini 3.1 PRO") pentru a evalua calitatea și completitudinea unui răspuns AI față de suita noastră manuală.
 
@@ -467,3 +467,4 @@ Codul autogenerat complet este disponibil în fișierul `_/src/generates_test/te
 4. Documentație oficială PITest: https://pitest.org/quickstart/maven/
 5. Documentație oficială JaCoCo: https://www.jacoco.org/jacoco/trunk/doc/maven.html
 6. Google, Gemini, https://gemini.google.com/, Data generării: 16 mai 2026
+7. Raport generat in totalitate cu Claude Sonnet 4.6 in Windsurf IDE - screenshot in prezentare, Data geerarii: 16 Mai 2026
