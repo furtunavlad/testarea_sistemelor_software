@@ -353,6 +353,10 @@ Pentru realizarea acestui proiect, am utilizat asistență AI (Windsurf / Cascad
 * **Generare boilerplate:** Structurarea inițială a claselor de test (setup `@BeforeEach`, import-uri JUnit 5).
 * **Identificare mutanți supraviețuitori:** Interpretarea log-urilor PITest pentru a identifica mutanții echivalenți și cei care pot fi uciși prin teste suplimentare.
 * **Formatare Markdown:** Generarea și actualizarea structurii curente a documentului `README.md`.
+* **7.1 Comparație: Suita Proprie vs. Teste Autogenerate** Acest raport a fost in totalitate generat cu Claude Sonnet 4.6 in data de 16 mai 2026 in Windsurf IDE:
+
+* <img width="1691" height="952" alt="Screenshot 2026-05-16 at 03 04 32" src="https://github.com/user-attachments/assets/78d135fb-ab8f-44cf-a90d-e7ee1246956b" />
+
 
 Toate deciziile de design al testelor (clase de echivalență, valori de frontieră, trasee independente) și logica de business au fost stabilite de membrii echipei.
 
@@ -404,8 +408,6 @@ void testLivrarePlatita_GreutateExact5kg() { ... }
 ```
 
 Codul autogenerat complet este disponibil în fișierul `_/src/generates_test/tests.java`.
-
-> *Notă: Capturi de ecran cu rularea codului autogenerat vor fi incluse în prezentarea PowerPoint (slide-uri dedicate rulării `mvn test` cu clasa `ProcesorComandaTest`).*
 
 #### 7.1.3 Analiza Comparativă
 
