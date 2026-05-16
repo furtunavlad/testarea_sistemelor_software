@@ -491,4 +491,4 @@ Codul autogenerat complet este disponibil în fișierul `_/src/generates_test/te
 4. Documentație oficială PITest: https://pitest.org/quickstart/maven/
 5. Documentație oficială JaCoCo: https://www.jacoco.org/jacoco/trunk/doc/maven.html
 6. Google, Gemini, https://gemini.google.com/, Data generării: 16 mai 2026
-7. Raport generat in totalitate cu Claude Sonnet 4.6 in Windsurf IDE - screenshot in prezentare, Data geerarii: 16 Mai 2026
+7. Raport generat in totalitate cu Claude Sonnet 4.6 in Windsurf IDE - Data generarii: 16 Mai 2026
