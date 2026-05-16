@@ -386,7 +386,7 @@ Toate deciziile de design al testelor (clase de echivalență, valori de frontie
 
 ### 7.1 Comparație[7]: Suita Proprie vs. Teste Autogenerate
 
-Am experimentat generarea automată de teste folosind **Gemini 2.5 Pro** (denumit de echipă „Gemini 3.1 PRO") pentru a evalua calitatea și completitudinea unui răspuns AI față de suita noastră manuală.
+Am experimentat generarea automată de teste folosind **Gemini 3.1 Pro** pentru a evalua calitatea și completitudinea unui răspuns AI față de suita noastră scrisa manual.
 
 #### 7.1.1 Promptul utilizat
 
