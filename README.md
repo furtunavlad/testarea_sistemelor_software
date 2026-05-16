@@ -358,6 +358,100 @@ Toate deciziile de design al testelor (clase de echivalență, valori de frontie
 
 ---
 
+### 7.1 Comparație: Suita Proprie vs. Teste Autogenerate
+
+Am experimentat generarea automată de teste folosind **Gemini 2.5 Pro** (denumit de echipă „Gemini 3.1 PRO") pentru a evalua calitatea și completitudinea unui răspuns AI față de suita noastră manuală.
+
+#### 7.1.1 Promptul utilizat
+
+```
+pentru codul asta te rog sa generezi teste de tipul: functionala si structurala.
+BVA, Whitebox si EPT. Da-mi direct codul folosind JUNIT5.
+```
+
+Promptul a fost trimis împreună cu codul sursă complet al clasei `ProcesorComanda.java`.
+
+#### 7.1.2 Răspunsul AI (extras reprezentativ)
+
+AI-ul a generat o clasă unică `ProcesorComandaTest` cu **15 teste**, grupate în 5 categorii prin comentarii:
+
+```java
+// 1. TESTE EPT (Clase de Echivalență) & WHITEBOX (Condiții Excepții) — 5 teste
+void testPreturiNull() { ... }
+void testPreturiGoale() { ... }
+void testGreutateNegativa() { ... }
+void testFidelitateNegativa() { ... }
+void testPretProdusNegativ() { ... }
+
+// 2. TESTE BVA & WHITEBOX (Acoperire Ramificatii) — 3 teste
+void testSumaExact1000_FaraVIP() { ... }
+void testSumaSub1000_FaraVIP() { ... }
+void testSumaMica_DarVIP() { ... }
+
+// 3. TESTE ANI FIDELITATE — 3 teste
+void testFidelitateIgnorataLaVIP() { ... }
+void testFidelitate5Ani_BVA() { ... }
+void testFidelitate10Ani_BVA() { ... }
+
+// 4. TESTE VOUCHER — 2 teste
+void testVoucherCuSumaRamasaPozitiva() { ... }
+void testVoucherCuSumaDevineZero() { ... }
+
+// 5. TESTE COST LIVRARE — 2 teste
+void testLivrareGratuita_Suma200BVA() { ... }
+void testLivrarePlatita_GreutatePeste5kg() { ... }
+void testLivrarePlatita_GreutateExact5kg() { ... }
+```
+
+Codul autogenerat complet este disponibil în fișierul `_/src/generates_test/tests.java`.
+
+> *Notă: Capturi de ecran cu rularea codului autogenerat vor fi incluse în prezentarea PowerPoint (slide-uri dedicate rulării `mvn test` cu clasa `ProcesorComandaTest`).*
+
+#### 7.1.3 Analiza Comparativă
+
+| Criteriu | Suita Proprie | Suita Autogenerată (AI) |
+| --- | --- | --- |
+| **Nr. total teste** | **33** (3 clase) | **15** (1 clasă) |
+| **Organizare** | 3 clase separate pe tehnică: `EPTest`, `BVATest`, `WhiteBoxTest` | O singură clasă mixtă `ProcesorComandaTest` |
+| **Mutation Testing** | ✅ 5 teste dedicate (ucid mutanți PITest identificați explicit) | ❌ Absent — niciun test orientat spre uciderea mutanților |
+| **Acoperire trasee independente** | ✅ Toate cele 10 trasee ciclomatice acoperite explicit | ⚠️ Acoperire parțială — nu urmărește traseele CFG |
+| **Precizie BVA** | ✅ Valori exacte la frontieră: `999.9`, `5.1`, `199.99` | ⚠️ Valori aproximative: `999`, `7.0`, `210` (deasupra frontierei, nu pe ea) |
+| **Condition Coverage** | ✅ Testează fiecare clauză a expresiilor `&&` / `\|\|` independent | ❌ Testează doar scenarii compuse, nu clauzele individual |
+| **Verificare mesaje excepții** | ✅ Unele teste verifică mesajul exact (`assertEquals("..."...)`) | ✅ Similar — verifică mesajul pentru `null` și preț negativ |
+| **Greutate = 0.0 (BVA)** | ✅ Testat explicit | ❌ Absent |
+| **Fidelitate = 1 an (BVA minim)** | ✅ Testat (1% reducere) | ❌ Absent — trece direct la 5 și 10 ani |
+| **Clamp voucher la exact 0.0** | ✅ Testat (`sumaDupaReducere == 0.0` după voucher) | ✅ Testat (`testVoucherCuSumaDevineZero`) |
+| **Rulare cu PITest** | ✅ Ucide 86/91 mutanți (95% mutation score) | ⚠️ Ucide 77/91 mutanți (**85% mutation score** — măsurat) |
+
+#### 7.1.4 Diferențe Calitative și Interpretare
+
+**Puncte forte ale suitei autogenerate:**
+- Generează rapid un schelet funcțional, util ca punct de plecare.
+- Acoperă toate cele 5 tipuri de validare a intrărilor (`null`, gol, greutate negativă, fidelitate negativă, preț negativ) — paritate completă cu suita proprie pe această zonă.
+- Comentariile inline explică calculele așteptate (ex: `// Suma = 100, reducere 2% = 98`), facilitând înțelegerea.
+
+**Limitări identificate ale suitei autogenerate:**
+- **Absența Mutation Testing** reprezintă cel mai semnificativ deficit. Fără teste care să forțeze diferențe la operatori de frontieră (`>=` vs `>`), mutanți ca `ConditionalsBoundaryMutator` pe pragul de 1000 lei supraviețuiesc.
+- **BVA inexact**: Testul `testLivrareGratuita_Suma200BVA` folosește `210.0` lei (care dă `205.8` după reducere), nu testează frontiera reală `200.0`. Valoarea corectă BVA ar fi fost `≈204.08` (pragul exact) sau testarea separată a `199.99` vs `200.0`.
+- **Nicio acoperire a traseelor ciclomatice**: AI-ul nu a calculat V(G) = 10 și nu a asigurat că fiecare traseu independent este exercitat de câte un test distinct.
+- **Condition coverage absent**: Expresia `if (sumaInitiala >= 1000.0 || isVIP)` nu este testată cu ambele clauze evaluate independent (C1=True/C2=False și C1=False/C2=True).
+
+#### 7.1.5 Rezultate Măsurate (rulare izolată `ProcesorComandaGeneratedTest`)
+
+| Metrică | Suita Proprie (33 teste) | Suita Autogenerată (16 teste) |
+| --- | --- | --- |
+| **Line Coverage (JaCoCo)** | 100% (26/26) | **100% (26/26)** |
+| **Branch Coverage (JaCoCo)** | 100% (28/28) | **100% (28/28)** |
+| **Instruction Coverage (JaCoCo)** | 100% (122/122) | **100% (122/122)** |
+| **Mutanți generați (PITest)** | 91 | 91 |
+| **Mutanți uciși (PITest)** | 86 | 77 |
+| **Mutanți supraviețuitori** | 5 (toți echivalenți) | **14** (6 `ConditionalsBoundary`, 5 `InlineConst`, 1 `OrderIf`, 1 `Math`, 1 `ArgProp`) |
+| **Test Strength (PITest)** | **95%** | **85%** |
+
+**Concluzie:** Suita autogenerată de AI atinge aceleași valori de **line și branch coverage 100%** ca suita proprie (JaCoCo), ceea ce dovedește că acoperirea structurală de bază este replicabilă automat. Diferența esențială apare la **mutation score: 85% vs 95%** — un deficit de 10 puncte procentuale cauzat de absența testelor dedicate pentru operatori de frontieră (`ConditionalsBoundaryMutator` — 6 supraviețuitori în plus) și constante inline (`InlineConstantMutator` — 5 supraviețuitori în plus). Suita autogenerată **nu înlocuiește** una proiectată metodic, dar poate reduce semnificativ efortul inițial [6].
+
+---
+
 ## 8. Prezentare și Demo
 
 * Prezentarea proiectului este disponibilă în fișierul `Testarea Sistemelor Software.pptx` si sumarizeaza acest readme. 
@@ -372,3 +466,4 @@ Toate deciziile de design al testelor (clase de echivalență, valori de frontie
 3. Documentație oficială JUnit 5: https://junit.org/junit5/docs/current/user-guide/
 4. Documentație oficială PITest: https://pitest.org/quickstart/maven/
 5. Documentație oficială JaCoCo: https://www.jacoco.org/jacoco/trunk/doc/maven.html
+6. Google, Gemini, https://gemini.google.com/, Data generării: 16 mai 2026
