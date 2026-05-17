@@ -478,7 +478,7 @@ Codul autogenerat complet este disponibil în fișierul `_/src/generates_test/te
 
 ## 8. Prezentare și Demo
 
-* Prezentarea proiectului este disponibilă în fișierul `Testarea Sistemelor Software.pptx` si sumarizeaza acest readme. 
+* Prezentarea proiectului: Testarea-Sistemelor-Softwareupdated.pptx in ROOT sau [AICI](https://gamma.app/docs/Copy-of-Testarea-Sistemelor-Software-updated-zmbqwi0uc6wkqkp?mode=doc). In realizarea prezentarii a fost folosit Gamma[8], empowered by AI.
 * DEMO: https://youtu.be/zdoa835_XUk
 
 ---
@@ -492,3 +492,4 @@ Codul autogenerat complet este disponibil în fișierul `_/src/generates_test/te
 5. Documentație oficială JaCoCo: https://www.jacoco.org/jacoco/trunk/doc/maven.html
 6. Google, Gemini, https://gemini.google.com/, Data generării: 16 mai 2026
 7. Raport generat in totalitate cu Claude Sonnet 4.6 in Windsurf IDE - Data generarii: 16 Mai 2026
+8. https://gamma.app/ro
