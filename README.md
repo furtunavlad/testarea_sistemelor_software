@@ -5,11 +5,56 @@
 
 ---
 
-## 1. Descriere Generală
+## 1. Configurația Mediului de Testare
+
+### 1.1 Configurația Hardware
+Compatibil cu majoritatea configuratiilor hardware. A fost rulat pe:
+* **Sistem de operare:** macOS Tahoe
+* **Procesor (CPU):** Apple M1 / M1 PRO
+* **Memorie RAM:** 16 GB / 32 GB 
+
+### 1.2 Configurația Software și Versiuni Tool-uri
+Proiectul folosește **Maven** ca utilitar de build și management al dependențelor.
+* **Java (JDK):** Versiunea 24
+* **Framework de testare:** JUnit Jupiter (JUnit 5) - Versiunea `5.13.4`
+* **Acoperire de cod (Code Coverage):** JaCoCo Maven Plugin - Versiunea `0.8.14`
+* **Testare pe bază de mutanți (Mutation Testing):** PITest Maven Plugin - Versiunea `1.19.4` (cu extensia `pitest-junit5-plugin` versiunea `1.2.3`)
+
+### 1.3 Comenzi de Rulare a Testelor și Generare Rapoarte
+Pentru a reproduce mediul și a vizualiza rapoartele din consolă, se vor folosi următoarele comenzi în directorul rădăcină al proiectului:
+
+**A. Rulare teste și generare raport de acoperire (JaCoCo):**
+1. Executarea testelor și construirea raportului:
+```bash
+mvn clean test
+```
+
+2. Deschiderea raportului JaCoCo (pe macOS/Linux):
+```bash
+open target/site/jacoco/index.html
+```
+
+*(Pentru Windows se poate folosi `start target/site/jacoco/index.html`)*
+
+**B. Rulare generare mutanți (PITest):**
+
+1. Rularea analizei de mutații:
+```bash
+mvn org.pitest:pitest-maven:mutationCoverage -DtargetClasses='proiect_testare.*' -DtargetTests='proiect_testare.*'
+```
+
+2. Deschiderea raportului PITest:
+```bash
+open target/pit-reports/index.html
+```
+
+---
+
+## 2. Descriere Generală
 
 Modulul `ProcesorComanda` are rolul de a calcula prețul final de plată pentru un coș de cumpărături, aplicând dinamic o serie de reduceri procentuale, vouchere valorice și taxe de livrare (inclusiv penalizări de greutate), în funcție de profilul clientului și detaliile comenzii.
 
-### 1.1. Date de Intrare (Parametri)
+### 2.1. Date de Intrare (Parametri)
 
 Sistemul primește următoarele informații pentru fiecare comandă:
 
@@ -19,7 +64,7 @@ Sistemul primește următoarele informații pentru fiecare comandă:
 * **`greutateColet`**: Un număr real reprezentând greutatea totală a pachetului (în kilograme).
 * **`isVIP`**: O valoare booleană (Adevărat/Fals) care indică dacă clientul face parte din programul Premium/VIP.
 
-### 1.2. Pre-condiții (Reguli de Validare)
+### 2.2. Pre-condiții (Reguli de Validare)
 
 Sistemul trebuie să respingă automat procesarea și să ridice o excepție (`IllegalArgumentException`) dacă oricare dintre următoarele condiții nu este respectată:
 
@@ -28,13 +73,13 @@ Sistemul trebuie să respingă automat procesarea și să ridice o excepție (`I
 3. Anii de fidelitate reprezintă un număr strict negativ (`< 0`).
 4. Oricare dintre prețurile din lista de produse este un număr strict negativ (`< 0`).
 
-### 1.3. Reguli de Business (Procesare)
+### 2.3. Reguli de Business (Procesare)
 
-**1.3.1. Calculul Sumei Inițiale**
+**2.3.1. Calculul Sumei Inițiale**
 
 * Sistemul va calcula suma inițială prin adunarea tuturor prețurilor valide din lista de produse.
 
-**1.3.2. Acordarea Reducerilor Procentuale**
+**2.3.2. Acordarea Reducerilor Procentuale**
 Se aplică o singură reducere globală, calculată după cum urmează:
 
 * **Reducerea de bază:** 
@@ -50,12 +95,12 @@ Se aplică o singură reducere globală, calculată după cum urmează:
 
 **Suma totala** se actualizează scăzând procentul total de reducere calculat din suma inițială.
 
-**1.3.3. Aplicarea Voucherului Fix**
+**2.3.3. Aplicarea Voucherului Fix**
 
 * Dacă clientul deține un voucher (`areVoucher == true`), se va scădea o valoare fixă de **50.0 lei** din suma obținută după aplicarea reducerilor procentuale.
 * Dacă în urma aplicării voucherului suma totală devine negativă, aceasta **va fi plafonată la 0.0 lei** (clientul nu poate primi bani înapoi).
 
-**1.3.4. Calculul Costurilor de Livrare**
+**2.3.4. Calculul Costurilor de Livrare**
 Taxa de transport se calculează în funcție de suma finală a produselor (după toate reducerile și voucherele) și de greutatea coletului:
 
 * **Livrare gratuită:** 
@@ -66,14 +111,14 @@ Taxa de transport se calculează în funcție de suma finală a produselor (dup�
   * Se aplică *doar dacă comanda nu beneficiază de livrare gratuită* și dacă greutatea coletului depășește pragul de **5.0 kg**. 
   * Pentru fiecare kilogram suplimentar peste pragul de 5.0 kg, se va adăuga o penalizare de **2.0 lei**.
 
-### 1.4. Post-condiții (Ieșiri)
+### 2.4. Post-condiții (Ieșiri)
 
 * Sistemul trebuie să returneze un număr real pozitiv, reprezentând costul final pe care clientul trebuie să-l achite.
 * Această valoare finală (Suma produselor + Cost livrare) trebuie rotunjită matematic la **exact 2 zecimale** înainte de a fi returnată.
 
 ---
 
-## 2. Structura Proiectului
+## 3. Structura Proiectului
 
 ```
 testarea_sistemelor_software/
@@ -90,55 +135,6 @@ testarea_sistemelor_software/
 ```
 
 **Total: 33 teste unitare** distribuite pe 3 clase de test.
-
----
-
-## 3. Configurația Mediului de Testare
-
-### 3.1 Configurația Hardware
-Compatibil cu majoritatea configuratiilor hardware. A fost rulat pe:
-* **Sistem de operare:** macOS Tahoe
-* **Procesor (CPU):** Apple M1 / M1 PRO
-* **Memorie RAM:** 16 GB / 32 GB 
-
-### 3.2 Configurația Software și Versiuni Tool-uri
-Proiectul folosește **Maven** ca utilitar de build și management al dependențelor.
-* **Java (JDK):** Versiunea 24
-* **Framework de testare:** JUnit Jupiter (JUnit 5) - Versiunea `5.13.4`
-* **Acoperire de cod (Code Coverage):** JaCoCo Maven Plugin - Versiunea `0.8.14`
-* **Testare pe bază de mutanți (Mutation Testing):** PITest Maven Plugin - Versiunea `1.19.4` (cu extensia `pitest-junit5-plugin` versiunea `1.2.3`)
-
-### 3.3 Comenzi de Rulare a Testelor și Generare Rapoarte
-Pentru a reproduce mediul și a vizualiza rapoartele din consolă, se vor folosi următoarele comenzi în directorul rădăcină al proiectului:
-
-**A. Rulare teste și generare raport de acoperire (JaCoCo):**
-1. Executarea testelor și construirea raportului:
-```bash
-mvn clean test
-```
-
-2. Deschiderea raportului JaCoCo (pe macOS/Linux):
-```bash
-open target/site/jacoco/index.html
-```
-
-
-*(Pentru Windows se poate folosi `start target/site/jacoco/index.html`)*
-
-**B. Rulare generare mutanți (PITest):**
-
-1. Rularea analizei de mutații:
-```bash
-mvn org.pitest:pitest-maven:mutationCoverage -DtargetClasses='proiect_testare.*' -DtargetTests='proiect_testare.*'
-
-```
-
-
-2. Deschiderea raportului PITest:
-```bash
-open target/pit-reports/index.html
-
-```
 
 ---
 
